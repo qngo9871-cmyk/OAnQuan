@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct GameView: View {
     @ObservedObject var game: GameModel
@@ -14,6 +15,10 @@ struct GameView: View {
     @State private var isAIThinking = false
     @State private var showHowToPlay = false
     @State private var showResignConfirm = false
+    /// Guards against double-recording the same match's outcome into
+    /// `MatchStats` (this view's onChange can fire more than once around a
+    /// single game-end transition).
+    @State private var statsRecorded = false
 
     var body: some View {
         VStack(spacing: 10) {
@@ -59,8 +64,9 @@ struct GameView: View {
         }
         .onAppear { maybeTriggerAI() }
         .onChange(of: game.current) { _ in maybeTriggerAI() }
+        .onChange(of: game.outcome) { newOutcome in handleOutcomeChange(newOutcome) }
         .alert(L("game.outcome.title"), isPresented: .constant(game.outcome != .ongoing)) {
-            Button(L("game.newGame")) { selectedCell = nil; game.reset() }
+            Button(L("game.newGame")) { selectedCell = nil; statsRecorded = false; game.reset() }
             Button(L("game.done")) { dismiss() }
         } message: {
             Text(outcomeMessage)
@@ -137,6 +143,38 @@ struct GameView: View {
         guard let cell = selectedCell else { return }
         game.play(cell: cell, direction: direction)
         selectedCell = nil
+        if game.lastCapturedCount > 0 {
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        }
+    }
+
+    /// Fires a haptic for the match result and records a vs-AI outcome into
+    /// `MatchStats` exactly once per game (pass-and-play games aren't
+    /// recorded — a "win" there isn't the human's personal record).
+    private func handleOutcomeChange(_ newOutcome: GameOutcome) {
+        guard newOutcome != .ongoing else { return }
+
+        let feedback = UINotificationFeedbackGenerator()
+        switch newOutcome {
+        case .win(let winner):
+            let humanWon = !vsAI || winner == humanPlayer
+            feedback.notificationOccurred(humanWon ? .success : .error)
+        case .draw:
+            feedback.notificationOccurred(.warning)
+        case .ongoing:
+            break
+        }
+
+        guard vsAI, !statsRecorded else { return }
+        statsRecorded = true
+        switch newOutcome {
+        case .win(let winner):
+            MatchStats.shared.record(winner == humanPlayer ? .win : .loss)
+        case .draw:
+            MatchStats.shared.record(.draw)
+        case .ongoing:
+            break
+        }
     }
 
     private func scoreLabel(_ player: Player) -> String {

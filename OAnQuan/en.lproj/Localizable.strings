@@ -6,6 +6,7 @@
 "home.howtoplay" = "How to Play";
 "home.rules" = "Full Rules";
 "home.upgrade" = "Unlock Hard AI & more →";
+"home.record" = "Your record vs AI: %d W · %d L · %d D";
 
 "difficulty.easy" = "Easy";
 "difficulty.normal" = "Normal";

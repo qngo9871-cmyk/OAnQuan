@@ -7,10 +7,17 @@ apps: Fanorona, Dara, SamLoc, ...). Built following the house pattern — read
 (PurchaseManager/UpgradeView framing, Core module shape, `Localization.swift`, tooling
 scripts).
 
-**Status: 🟢 SUBMITTED, WAITING_FOR_REVIEW (2026-08-01).** App id `6796833584`, version `1.0.0`
-(id `02974e1f-0415-4696-9c95-1ba3fc2871b4`), build `df46c053-b79d-4a20-95dc-90506b3ee2af`
-attached, reviewSubmission `0cc80d2d-f422-4a7b-9923-ab68fbc6c7e4`. Release type: automatic
-(`AFTER_APPROVAL`).
+**Status: 🟡 Guideline 5.6 account-level hold — ready for resubmission after 2026-08-18.**
+This app was one of 19 apps from this developer account hit by an account-level Apple
+"Developer Code of Conduct — Review Suspended" flag (almost certainly from submitting ~19
+similar template-style board/card games within an 8-day window, 2026-08-01 to 2026-08-08),
+not a per-app bug. Resubmission is hard-blocked account-wide until 2026-08-18. Original
+submission was app id `6796833584`, version `1.0.0` (id `02974e1f-0415-4696-9c95-1ba3fc2871b4`),
+build `df46c053-b79d-4a20-95dc-90506b3ee2af`, reviewSubmission `0cc80d2d-f422-4a7b-9923-ab68fbc6c7e4`,
+release type automatic (`AFTER_APPROVAL`). A genuine quality/differentiation pass was done
+locally on 2026-08-09 (see "Pre-resubmission quality review" section below) — bump to
+`1.0.1` (build `2`) ships whenever the account hold clears; no ASC/App Store Connect work
+has been done as part of this pass (out of scope, hard blocked until 2026-08-18).
 
 ## Deploy / resubmit pattern
 
@@ -219,6 +226,66 @@ still a separate, later step (explicitly out of scope for this pass, same as bef
   (`source.branch=main`, `source.path=/`). Live at
   **https://qngo9871-cmyk.github.io/oanquan-legal/** (all three pages verified returning
   HTTP 200).
+
+## Pre-resubmission quality review (2026-08-09)
+
+Full local code/build/logic review done ahead of the 2026-08-18 Guideline 5.6 resubmission
+window — no ASC/App Store Connect access touched (hard-blocked; entirely a local
+code/build/git pass). `xcodegen generate` + a clean Debug build for iOS Simulator
+(iPhone 17, iOS 26.5) succeeded with **zero errors and zero warnings**.
+
+- **Game logic**: re-verified `Board.swift`/`GameModel.swift`/`AIEngine.swift` line-by-line
+  against this file's own ruleset spec above (board layout, sowing, the empty-then-full
+  capture chain, Quan-cell-never-empty handling, forced borrowing, game-end scoring). It's
+  a complete, correct implementation matching the documented spec exactly — not a stub.
+  No changes needed here.
+- **Grep for TODO/FIXME/placeholder/Lorem ipsum/dummy text**: none found anywhere in
+  `OAnQuan/`.
+- **Found and fixed a real bug**: `LocalizationManager`'s in-app language switcher was
+  broken. `HomeView`'s segmented Picker binds directly to `$loc.language`; the property's
+  `didSet` only persisted the choice to `UserDefaults` but never re-resolved `bundle` —
+  only the separate `setLanguage(_:)` method did that, and it was reachable solely via the
+  DEBUG `OQ_LANG` screenshot-automation launch arg, never from the real UI. Net effect: a
+  live user tapping "Tiếng Việt"/"English" saw the toggle move but no strings actually
+  changed until the app was relaunched — directly contradicting this class's own doc
+  comment ("...so the in-app language switches live without relaunching") and this
+  developer's standing bilingual-in-app rule. Fixed by moving the bundle re-resolution into
+  `language`'s `didSet`; `setLanguage(_:)` is now a thin wrapper. Verified via simulator
+  screenshots: launching with `OQ_LANG=vi` (which now exercises the exact same `didSet`
+  code path as the live Picker) correctly renders all Vietnamese strings with no relaunch.
+- **Localization**: `en.lproj`/`vi.lproj` `Localizable.strings` key sets verified identical
+  (83 keys each before this pass, 84 after adding `home.record`), both real hand-written
+  translations, no missing/stale keys.
+- **Onboarding**: real 4-page first-launch walkthrough (`OnboardingView.swift`) covering
+  board layout, pick-up/sow, capture chain, and borrowing/scoring — also reachable anytime
+  from Home ("How to Play") and in-game (toolbar `?` button). Confirmed present and correct,
+  no changes needed.
+- **DEBUG isPro/paywall gating**: checked for the double-gating bug pattern seen elsewhere
+  in this developer's apps. `PurchaseManager`'s `#if DEBUG isPro = OQ_CAPTURE != "paywall"`
+  bypass is intentional (screenshot automation) and consistent — all gate checks
+  (`HomeView`'s Hard-AI lock, Play-vs-Friend lock, `UpgradeView`'s owned/buy/restore states)
+  read the single `purchases.isPro` published flag with no redundant/conflicting second
+  gate found. No double-gating bug present in this app.
+- **Small differentiation work** (not a redesign, scoped intentionally small):
+  - Added `Core/MatchStats.swift` — a local, on-device-only (UserDefaults, no network) win/
+    loss/draw record for vs-AI matches, shown on `HomeView` under the subtitle once a
+    player has at least one recorded match ("Your record vs AI: %d W · %d L · %d D" /
+    Vietnamese equivalent). Recorded once per match via a new `onChange(of: game.outcome)`
+    handler in `GameView`, guarded against double-recording and skipped for pass-and-play
+    games (a "win" there isn't a personal record).
+  - Added haptic feedback (`UIImpactFeedbackGenerator` on capture,
+    `UINotificationFeedbackGenerator` on win/loss/draw) to `GameView` — previously entirely
+    absent from the app.
+- **Version bump**: `project.yml` `MARKETING_VERSION` `1.0.0` → `1.0.1`,
+  `CURRENT_PROJECT_VERSION` `1` → `2`. Verified in a running simulator build (footer shows
+  "v1.0.1 (2)").
+- **Not done / still open**: no automated UI test for the live language-Picker tap
+  specifically (verified indirectly via the shared code path, not a literal tap
+  simulation); App Store screenshots (`screenshots/final/`) were not regenerated for
+  1.0.1 — still reflect 1.0.0's UI, which is visually unchanged except the new (initially
+  hidden, since no match history exists on a fresh install) record line, so this is low
+  priority but should be revisited before the actual resubmission if screenshots are
+  refreshed for other reasons.
 
 ## TODOs for the App Store Connect step (explicitly out of scope here)
 

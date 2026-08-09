@@ -3,6 +3,7 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject var loc: LocalizationManager
     @StateObject private var purchases = PurchaseManager.shared
+    @StateObject private var stats = MatchStats.shared
     @State private var selectedDifficulty: AIDifficulty = .easy
     @State private var navigateToAI = false
     @State private var navigateToLocal = false
@@ -23,6 +24,12 @@ struct HomeView: View {
                     Text(L("home.subtitle"))
                         .font(.title3)
                         .foregroundStyle(.secondary)
+                    if stats.hasAnyRecord {
+                        Text(String(format: L("home.record"), stats.wins, stats.losses, stats.draws))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .padding(.top, 2)
+                    }
                 }
 
                 Spacer()

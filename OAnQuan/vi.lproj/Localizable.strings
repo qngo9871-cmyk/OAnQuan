@@ -6,6 +6,7 @@
 "home.howtoplay" = "Hướng Dẫn";
 "home.rules" = "Luật Đầy Đủ";
 "home.upgrade" = "Mở khóa AI Khó & hơn thế nữa →";
+"home.record" = "Thành tích đấu AI: %d Thắng · %d Thua · %d Hòa";
 
 "difficulty.easy" = "Dễ";
 "difficulty.normal" = "Vừa";

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1712DC1B7549453004933B18 /* MatchStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10CF0FB5E604A4825115376 /* MatchStats.swift */; };
 		5199C4B78C3D75633ECCC81C /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD8478A147413D63EA1553F8 /* OnboardingView.swift */; };
 		5B5DE8294A03CC46FB893718 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9DD93C0C702364EBF01E485B /* Localizable.strings */; };
 		6159E4AF6335F23590176B34 /* AIEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1038F866690D5F6B30F80FF /* AIEngine.swift */; };
@@ -37,6 +38,7 @@
 		9CE8A04AB0F0ACC65D29E695 /* UpgradeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradeView.swift; sourceTree = "<group>"; };
 		9EA5036D4F0E25D2AFAB846A /* Board.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
 		B1038F866690D5F6B30F80FF /* AIEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIEngine.swift; sourceTree = "<group>"; };
+		B10CF0FB5E604A4825115376 /* MatchStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchStats.swift; sourceTree = "<group>"; };
 		BA8FC081BFEA379F3B8F3AA8 /* PurchaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseManager.swift; sourceTree = "<group>"; };
 		BD8478A147413D63EA1553F8 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		C3976CA4BA5E9FBC4F7874BF /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -68,6 +70,7 @@
 				9EA5036D4F0E25D2AFAB846A /* Board.swift */,
 				343493602BEE4E53B46AED56 /* GameModel.swift */,
 				28513179B68E8AA414797C4F /* Localization.swift */,
+				B10CF0FB5E604A4825115376 /* MatchStats.swift */,
 				BA8FC081BFEA379F3B8F3AA8 /* PurchaseManager.swift */,
 			);
 			path = Core;
@@ -180,6 +183,7 @@
 				B067269487B6194B8D81B312 /* GameView.swift in Sources */,
 				82846B37ACEE971680D14480 /* HomeView.swift in Sources */,
 				F1F7B9A0DA58AA932E57FC29 /* Localization.swift in Sources */,
+				1712DC1B7549453004933B18 /* MatchStats.swift in Sources */,
 				6337D14E7E74B0CD862A3FFE /* OAnQuanApp.swift in Sources */,
 				5199C4B78C3D75633ECCC81C /* OnboardingView.swift in Sources */,
 				A8726ED645CC6B3552C90E59 /* PurchaseManager.swift in Sources */,
@@ -238,7 +242,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = SM99L22Q84;
 				ENABLE_PREVIEWS = YES;
@@ -260,7 +264,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -278,7 +282,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Ô Ăn Quan";
@@ -289,7 +293,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.quyenngo.oanquan;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -301,7 +305,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Ô Ăn Quan";
@@ -312,7 +316,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.quyenngo.oanquan;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -354,7 +358,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = SM99L22Q84;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -370,7 +374,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";

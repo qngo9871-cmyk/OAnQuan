@@ -14,7 +14,19 @@ final class LocalizationManager: ObservableObject {
     static let shared = LocalizationManager()
 
     @Published var language: AppLanguage {
-        didSet { UserDefaults.standard.set(language.rawValue, forKey: "app_language") }
+        didSet {
+            UserDefaults.standard.set(language.rawValue, forKey: "app_language")
+            // Without this, setting `language` directly (e.g. the segmented
+            // Picker on HomeView binding straight to `$loc.language`) only
+            // updated the published enum, not the resolved lookup bundle —
+            // so `L()` kept returning the old language's strings until the
+            // next app relaunch, silently defeating the whole point of this
+            // manual bundle-swap localizer. `setLanguage(_:)` below already
+            // did this correctly but was only reachable via the DEBUG
+            // OQ_LANG launch-arg path used for screenshot automation, never
+            // from the real in-app switcher.
+            bundle = Self.bundle(for: language)
+        }
     }
 
     private var bundle: Bundle = .main
@@ -37,9 +49,12 @@ final class LocalizationManager: ObservableObject {
         return b
     }
 
+    /// Thin wrapper kept for call-site clarity (DEBUG OQ_LANG launch-arg
+    /// path). `language`'s didSet now does the actual bundle swap, so a
+    /// plain `language = lang` assignment (as the in-app Picker does) works
+    /// identically.
     func setLanguage(_ lang: AppLanguage) {
         language = lang
-        bundle = Self.bundle(for: lang)
     }
 
     func string(_ key: String) -> String {
