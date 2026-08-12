@@ -394,6 +394,23 @@ Second, deeper pre-resubmission pass (batch 7, scheduled 2026-09-06) — buildin
   cancelled/recreated (see `~/asc-tools/asc_submit_woktonight.py` for the pattern, and
   [[asc_resubmit_after_rejection]]).
 
+## Build staged for resubmission (2026-08-13)
+
+Archived, exported, and uploaded a Release build ahead of the staggered resubmission — still
+blocked until 2026-08-18 by the Guideline 5.6 account-level hold, this app resubmits
+**2026-09-06** (batch 7). Build **1.0.2 (3)** uploaded via
+`xcrun altool --upload-app` (Delivery UUID `16cf9903-cb03-4283-8489-e57ac0048010`), processed to `VALID` by Apple, and
+attached to the existing `REJECTED` appStoreVersion (id `02974e1f-0415-4696-9c95-1ba3fc2871b4`) via a direct
+`PATCH appStoreVersions/{id}/relationships/build` API call — independently re-verified via a
+follow-up `GET` on the same relationship, not just trusted from the PATCH's 204 response.
+
+**Deliberately NOT done yet** — waiting for the user's explicit go-ahead on this app's
+scheduled date, per the staggered resubmission plan:
+1. Tick the Pro IAP into this version in the App Store Connect **web UI** — the API has no
+   way to do this; it must be done from the version's own page (not the IAP's own page, which
+   creates an orphaned draft submission — a mistake this portfolio hit once before).
+2. Submit for review.
+
 ## TODOs for the App Store Connect step (explicitly out of scope here)
 
 - Register `com.quyenngo.oanquan` bundle ID and get a provisioning profile before
