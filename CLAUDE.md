@@ -7,17 +7,22 @@ apps: Fanorona, Dara, SamLoc, ...). Built following the house pattern — read
 (PurchaseManager/UpgradeView framing, Core module shape, `Localization.swift`, tooling
 scripts).
 
-**Status: 🟡 Guideline 5.6 account-level hold — ready for resubmission after 2026-08-18.**
+**Status: 🟢 Ready for resubmission (batch 7, scheduled 2026-09-06).**
 This app was one of 19 apps from this developer account hit by an account-level Apple
 "Developer Code of Conduct — Review Suspended" flag (almost certainly from submitting ~19
 similar template-style board/card games within an 8-day window, 2026-08-01 to 2026-08-08),
-not a per-app bug. Resubmission is hard-blocked account-wide until 2026-08-18. Original
-submission was app id `6796833584`, version `1.0.0` (id `02974e1f-0415-4696-9c95-1ba3fc2871b4`),
-build `df46c053-b79d-4a20-95dc-90506b3ee2af`, reviewSubmission `0cc80d2d-f422-4a7b-9923-ab68fbc6c7e4`,
-release type automatic (`AFTER_APPROVAL`). A genuine quality/differentiation pass was done
-locally on 2026-08-09 (see "Pre-resubmission quality review" section below) — bump to
-`1.0.1` (build `2`) ships whenever the account hold clears; no ASC/App Store Connect work
-has been done as part of this pass (out of scope, hard blocked until 2026-08-18).
+not a per-app bug. Resubmission is hard-blocked account-wide until 2026-08-18, and this
+app is scheduled in the staggered post-hold plan for **2026-09-06** (batch 7, the final
+batch — alongside Hanafuda Koi-Koi and Mythsmith) — see
+`~/Projects/app-store-rejections/NOTES.md`. Do not resubmit before that date without the
+user's explicit go-ahead. Original submission was app id `6796833584`, version `1.0.0` (id
+`02974e1f-0415-4696-9c95-1ba3fc2871b4`), build `df46c053-b79d-4a20-95dc-90506b3ee2af`,
+reviewSubmission `0cc80d2d-f422-4a7b-9923-ab68fbc6c7e4`, release type automatic
+(`AFTER_APPROVAL`). Two local quality passes since: 2026-08-09 (see "Pre-resubmission
+quality review" below) and 2026-08-12 (see "Polish pass" below, current version `1.0.2`
+build `3`). ASC metadata/keywords/screenshots for `1.0.2` were pushed live on 2026-08-12
+onto the still-REJECTED/editable version `02974e1f-...` — no build has been uploaded to
+that version yet, and no review-submission script has been run (out of scope/blocked).
 
 ## Deploy / resubmit pattern
 
@@ -287,9 +292,117 @@ code/build/git pass). `xcodegen generate` + a clean Debug build for iOS Simulato
   priority but should be revisited before the actual resubmission if screenshots are
   refreshed for other reasons.
 
+## Polish pass (2026-08-12)
+
+Second, deeper pre-resubmission pass (batch 7, scheduled 2026-09-06) — building on the
+2026-08-09 pass above, not redoing it. `xcodegen generate` + a clean Debug simulator build
+(iPhone 17 Pro, iOS 26.5) still succeeds with **zero errors and zero warnings**.
+
+- **Re-verified the 2026-08-09 language-switcher fix, specifically mid-session (not just
+  cold launch)**: `LocalizationManager.language`'s `didSet` now re-resolves `bundle`
+  directly, so the segmented Picker's `$loc.language` binding (which writes straight to
+  that property, no `setLanguage(_:)` indirection) exercises the exact same code path a
+  real tap does. Verified live in the running simulator process — no OS-level Accessibility
+  automation permission was available on this machine to literally tap the control (the
+  sandboxed shell isn't Accessibility-trusted; `osascript`/System Events returned error
+  -25200 on every attempt), so verification used a temporary `#if DEBUG` hook
+  (`OQ_LIVE_SWITCH_TEST`, added to `HomeView`, screenshotted, then fully removed —
+  `git diff` is clean of it) that waits ~2.5s after launch and then does the identical
+  `loc.language = ...` write the Picker's binding performs. Screenshots before/after in the
+  same process (no relaunch) confirm every visible string — title, subtitle, difficulty
+  labels, both buttons, the "How to Play"/"Full Rules" links, and the language picker's own
+  selected-segment label — re-rendered correctly in Vietnamese with proper diacritics,
+  immediately, with no relaunch. The only thing that correctly stayed unlocalized was the
+  `v1.0.2 (3)` version footer (by design — it's not a translatable string).
+- **Found and fixed a real bug — same class flagged in Janggi this batch**: the `01-home`
+  App Store screenshot (both `en` and `vi`) showed the onboarding "The Board" walkthrough
+  screen instead of the actual Home screen. Root cause in `ContentView.swift`: the DEBUG
+  `OQ_CAPTURE` dispatch explicitly excluded `capture == "home"` from the onboarding-bypass
+  branch (`if let capture = ..., capture != "home" { ... }`), so on a fresh
+  simulator/install (`hasSeenOnboarding == false`) the `home` scenario fell through to the
+  normal first-launch onboarding gate instead of showing `HomeView()` — while every other
+  scenario (`midgame`, `capture`, `upgrade`, `rules`, `onboarding` itself) correctly bypassed
+  it. Fixed by handling `capture == "home"` explicitly inside the dispatch (returns
+  `HomeView()` directly), consistent with how the other scenarios are handled. Confirmed by
+  erasing the dedicated capture simulator to a genuinely fresh state and re-running
+  `capture_shots.py` — `01-home.png` now correctly shows Home in both locales.
+- **Screenshot capture — dedicated simulator device**: created a per-app-named
+  `OAnQuan-Capture` simulator (`xcrun simctl create`) instead of using
+  `capture_shots.py`'s generic `find_device()` (which regex-matches on device *name*
+  "iPhone ... Pro Max" — this session had multiple concurrently-running agents' simulators
+  matching that same generic name, e.g. a shared `iPhone 17 Pro Max` already booted by
+  another app's capture run). Ran a locally-modified copy of the script (device hardcoded to
+  the dedicated UDID) rather than mutating the checked-in `capture_shots.py`. All 10
+  regenerated screenshots (`en` + `vi` × 5 scenarios) were visually inspected and confirmed
+  to show genuinely OAnQuan's own UI (board, "Ô Ăn Quan" branding, no cross-app leakage),
+  correct language per locale, no dead-space/layout bugs, and the `upgrade` scenario still
+  correctly shows "You own Ô Ăn Quan Pro ✓" (the 2026-07-31 fix holds).
+- **Other UI/onboarding/IAP-gating checks**: `UpgradeView`, `OnboardingView`, and
+  `GameView` re-read line-by-line — no dead-space/top-hugging layout bug (`GameView` already
+  pins content to the top via `.frame(..., alignment: .top)` + a trailing `Spacer`, the
+  correct structure), no `isPro` double-gating (single source of truth, same as the
+  2026-08-09 finding), onboarding still a real 4-page walkthrough reachable from Home and
+  in-game. No changes needed beyond the `ContentView.swift` fix above.
+- **ASO/keyword refresh**: pulled the live ASC listing first — description and promotional
+  text in both locales are already strong, specific, and accurate (no rewrite needed, per
+  house guidance to only touch weak copy). Refreshed **keywords only**: dropped terms
+  redundant with the already-indexed app name/subtitle (`o an quan`, `ô ăn quan`,
+  `vietnamese mancala` — all literally in the en-US name; `ô ăn quan`, `o an quan`,
+  `cờ dân gian`, `trò chơi dân gian`, `rải quân`, `ăn quân` — all literally in the vi
+  name/subtitle), freeing up the 100-char budget for non-redundant, higher-value
+  mancala-family/regional terms: en-US now `board game,offline,strategy,two player,
+  congkak,sungka,mancala family,vietnamese folk,ai game` (92 chars); vi now
+  `cờ chiến thuật,hai người,offline,cờ truyền thống,trò chơi trẻ em,giải trí gia đình,
+  cờ gánh,mancala` (98 chars).
+- **`asc_push_oanquan.py` bugs found and fixed before trusting it** (same bug classes
+  flagged elsewhere in this batch's push scripts):
+  - `find_app_info` picked the *first* appInfo in an editable state with no fallback
+    ordering — harmless today (this app has only one appInfo) but the same shape as the
+    Janggi/Omweso bug where a locked appInfo could get picked over an editable one when
+    multiple exist. Rewritten to try genuinely-editable states first, locked states only as
+    a fallback (mirrors Omweso's already-fixed version).
+  - `find_or_create_version` hardcoded the target version string to the stale `"1.0.0"` —
+    would have silently re-pushed 1.0.0 instead of bumping to this pass's `1.0.2`. Pulled
+    into a `TARGET_VERSION` constant kept in sync with `project.yml`. The function only ever
+    matches draft/rejected states (never a live version), so — unlike Janggi's version of
+    this bug — there was no risk of clobbering a `READY_FOR_SALE` version, just a stale
+    target string.
+  - `set_iap_localization` and `set_iap_price` had no error handling — confirmed this is a
+    real, live failure mode (not hypothetical): running the fixed script hit real `409`s
+    ("Version is not in modifiable state" / "IS_FAMILY_SHAREABLE can not be modified") on
+    the IAP, which is presumably still attached to the original rejected review submission.
+    Without the fix, this would have crashed the script before it ever reached the Pricing
+    section below it, silently skipping the app-base-price and IAP-price pushes too. Now
+    wrapped in `try/except RuntimeError`, reports and continues (mirrors Omweso's fix); app
+    base price (Free) and IAP price ($2.99) both confirmed set successfully in the same run.
+- **ASC push confirmed**: ran `asc_push_oanquan.py`, then re-read the listing via
+  `asc_inspect_listing.py` — landed on `v1.0.2 [REJECTED]` at the same version id
+  `02974e1f-0415-4696-9c95-1ba3fc2871b4` (confirmed still the editable one, not a new/live
+  version), with the refreshed keywords present on both locales. Then ran
+  `asc_push_oanquan_screenshots.py` — all 10 screenshots uploaded successfully to that same
+  version/locale pair.
+- **Version bump**: `project.yml` `MARKETING_VERSION` `1.0.1` → `1.0.2`,
+  `CURRENT_PROJECT_VERSION` `2` → `3` (both the project-level and target-level blocks).
+  Verified in the running simulator build and in the regenerated screenshots (footer shows
+  "v1.0.2 (3)").
+- **Not done / still open**: no build has been uploaded to ASC for `1.0.2` yet (archive/
+  export/upload step, plus ticking the IAP into the version, are both still needed before
+  actual submission — same as before, out of scope for this metadata-only pass); the IAP's
+  own localization/price are apparently still locked to the original rejected review
+  submission (see the 409s above) — worth a fresh look right before the 2026-09-06
+  resubmission in case that clears on its own once the review-submission item is
+  cancelled/recreated (see `~/asc-tools/asc_submit_woktonight.py` for the pattern, and
+  [[asc_resubmit_after_rejection]]).
+
 ## TODOs for the App Store Connect step (explicitly out of scope here)
 
 - Register `com.quyenngo.oanquan` bundle ID and get a provisioning profile before
-  `rebuild.sh`'s device/archive step will succeed.
-- No App Store Connect metadata/IAP/pricing work has been done (no `asc_push_oanquan*.py`
-  scripts exist yet, unlike SamLoc's).
+  `rebuild.sh`'s device/archive step will succeed — already done (the app has a live ASC
+  record and this repo has archived/uploaded a build before), noted here only because an
+  earlier version of this doc said otherwise.
+- App Store Connect metadata (name/subtitle/keywords/description/promo/support URL),
+  categories, IAP, and pricing are all live-pushed via `~/asc-tools/asc_push_oanquan.py`
+  (idempotent — re-run after any copy change) and
+  `~/asc-tools/asc_push_oanquan_screenshots.py`. No review-submission script exists yet for
+  this app (see the "Deploy / resubmit pattern" section at the top) — that's the remaining
+  step before the 2026-09-06 resubmission.

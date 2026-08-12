@@ -8,7 +8,15 @@ struct ContentView: View {
         if let lang = ProcessInfo.processInfo.environment["OQ_LANG"], let l = AppLanguage(rawValue: lang) {
             LocalizationManager.shared.setLanguage(l)
         }
-        if let capture = ProcessInfo.processInfo.environment["OQ_CAPTURE"], capture != "home" {
+        if let capture = ProcessInfo.processInfo.environment["OQ_CAPTURE"] {
+            // Every capture scenario (including "home") must bypass the
+            // first-launch onboarding gate below — a fresh simulator install
+            // has `hasSeenOnboarding == false`, so without this the "home"
+            // hero screenshot silently rendered onboarding instead of Home
+            // (caught 2026-08-12; same bug class found in Janggi this batch).
+            if capture == "home" {
+                return AnyView(HomeView())
+            }
             if capture == "onboarding" {
                 return AnyView(OnboardingView(onFinished: {}))
             }
