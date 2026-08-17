@@ -6,6 +6,8 @@
 "home.howtoplay" = "Hướng Dẫn";
 "home.rules" = "Luật Đầy Đủ";
 "home.upgrade" = "Mở khóa AI Khó & hơn thế nữa →";
+"home.upgrade.trialended" = "Hết dùng thử — mở khóa để tiếp tục chơi →";
+"home.trialdays" = "Dùng thử miễn phí — còn %d ngày";
 "home.record" = "Thành tích đấu AI: %d Thắng · %d Thua · %d Hòa";
 
 "difficulty.easy" = "Dễ";
@@ -71,6 +73,7 @@
 
 "upgrade.title" = "Ô Ăn Quan Pro";
 "upgrade.subtitle" = "Mở khóa toàn bộ trải nghiệm.";
+"upgrade.subtitle.trialended" = "Bản dùng thử 7 ngày đã hết. Mở khóa Ô Ăn Quan Pro để tiếp tục chơi.";
 "upgrade.feature.hardAI" = "Độ khó AI Khó";
 "upgrade.feature.playFriend" = "Chơi Với Bạn (hai người, cùng một máy)";
 "upgrade.feature.noAds" = "Chơi không giới hạn, không quảng cáo";

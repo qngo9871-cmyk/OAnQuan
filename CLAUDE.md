@@ -24,6 +24,33 @@ build `3`). ASC metadata/keywords/screenshots for `1.0.2` were pushed live on 20
 onto the still-REJECTED/editable version `02974e1f-...` — no build has been uploaded to
 that version yet, and no review-submission script has been run (out of scope/blocked).
 
+**2026-08-18 — 7-day trial, then everything locks (no permanent free tier).** Portfolio-wide
+standing rule now: no app should offer free play at any difficulty forever, only a capped
+trial (siblings ChineseChess and SamLoc already carry this pattern; SamLoc's version is the
+reference implementation). Before this change, Easy and Normal AI difficulty were free
+forever — only Hard AI and Play vs Friend ever required Pro. `PurchaseManager.swift` gained
+`trialActive`/`trialDaysRemaining` backed by a `firstLaunchDate` UserDefaults key (7-day
+`trialDuration`), with `evaluateTrialStatus()` called from `init()` alongside the existing
+transaction-listener setup (merged in, not replacing it). `HomeView.isLocked(_:)` is a new
+helper: Pro users always unlocked, Hard always locked (unchanged), Easy/Normal now lock once
+the trial expires — previously they never locked at all. Play vs Friend was already
+Pro-only in all cases and is unaffected. Existing installs with no stored `firstLaunchDate`
+get the clock started by this update rather than being locked out immediately. Added a
+"Free trial — %d day(s) left" caption and switched the Home upgrade footnote and
+`UpgradeView`'s new subtitle line (previously `upgrade.subtitle` existed in the strings
+files but wasn't actually rendered anywhere in `UpgradeView.swift` — added the missing
+`Text`) to "trial ended" copy once expired. New keys `home.trialdays`,
+`home.upgrade.trialended`, `upgrade.subtitle.trialended` added to both `en.lproj` and
+`vi.lproj` `Localizable.strings`. Checked `PurchaseManager.updateEntitlementStatus()`'s
+`#if DEBUG isPro = ProcessInfo...["OQ_CAPTURE"] != "paywall"` bypass — it already has a
+capture-mode exemption (not the bare unguarded pattern seen in some sibling apps), consistent
+with the 2026-08-09 review's finding of "no double-gating bug present," so left untouched.
+Clean Debug simulator build succeeded after the change. **Not yet archived/submitted — this
+is a real product change to a not-yet-live app still mid-suspension-recovery, holding for the
+user's explicit go-ahead, same as the rest of this app's resubmission timeline** (see the
+Status note above; this is a code-only change layered on top of the existing batch-7
+2026-09-06 plan, not a change to that schedule).
+
 ## Deploy / resubmit pattern
 
 No Xcode account/Distribution cert on this machine — pass the ASC API key explicitly to

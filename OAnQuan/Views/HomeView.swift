@@ -13,6 +13,17 @@ struct HomeView: View {
     @State private var aiGame = GameModel()
     @State private var localGame = GameModel()
 
+    /// Once the 7-day trial ends and the user isn't Pro, every AI
+    /// difficulty locks — Easy/Normal used to be free forever, but per the
+    /// portfolio-wide no-permanent-free-tier rule there is no longer a
+    /// tier that stays unlocked past the trial. Hard was always Pro-only
+    /// and stays that way regardless of trial state.
+    private func isLocked(_ difficulty: AIDifficulty) -> Bool {
+        if purchases.isPro { return false }
+        if difficulty.requiresPro { return true }
+        return !purchases.trialActive
+    }
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 26) {
@@ -39,7 +50,7 @@ struct HomeView: View {
                         ForEach(AIDifficulty.allCases) { level in
                             HStack {
                                 Text(L("difficulty." + level.rawValue.lowercased()))
-                                if level.requiresPro && !purchases.isPro { Image(systemName: "lock.fill") }
+                                if isLocked(level) { Image(systemName: "lock.fill") }
                             }
                             .tag(level)
                         }
@@ -48,7 +59,7 @@ struct HomeView: View {
                     .frame(maxWidth: 280)
 
                     Button {
-                        if selectedDifficulty.requiresPro && !purchases.isPro {
+                        if isLocked(selectedDifficulty) {
                             showUpgrade = true
                         } else {
                             aiGame.reset()
@@ -88,9 +99,17 @@ struct HomeView: View {
                     }
                 }
 
+                if !purchases.isPro && purchases.trialActive {
+                    Text(String(format: L("home.trialdays"), purchases.trialDaysRemaining))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
                 if !purchases.isPro {
                     Button { showUpgrade = true } label: {
-                        Text(L("home.upgrade")).font(.footnote).foregroundStyle(.orange)
+                        Text(L(purchases.trialActive ? "home.upgrade" : "home.upgrade.trialended"))
+                            .font(.footnote)
+                            .foregroundStyle(.orange)
                     }
                 }
 

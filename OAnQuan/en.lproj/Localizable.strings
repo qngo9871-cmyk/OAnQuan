@@ -6,6 +6,8 @@
 "home.howtoplay" = "How to Play";
 "home.rules" = "Full Rules";
 "home.upgrade" = "Unlock Hard AI & more →";
+"home.upgrade.trialended" = "Trial ended — unlock to keep playing →";
+"home.trialdays" = "Free trial — %d day(s) left";
 "home.record" = "Your record vs AI: %d W · %d L · %d D";
 
 "difficulty.easy" = "Easy";
@@ -71,6 +73,7 @@
 
 "upgrade.title" = "Ô Ăn Quan Pro";
 "upgrade.subtitle" = "Unlock the full experience.";
+"upgrade.subtitle.trialended" = "Your 7-day free trial has ended. Unlock Ô Ăn Quan Pro to keep playing.";
 "upgrade.feature.hardAI" = "Hard AI difficulty";
 "upgrade.feature.playFriend" = "Play vs Friend (local two-player)";
 "upgrade.feature.noAds" = "Unlimited matches, no ads ever";
