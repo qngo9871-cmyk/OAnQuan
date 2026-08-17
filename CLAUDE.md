@@ -438,6 +438,30 @@ scheduled date, per the staggered resubmission plan:
    creates an orphaned draft submission — a mistake this portfolio hit once before).
 2. Submit for review.
 
+## Build 4 (v1.0.3) archived/exported/uploaded — 2026-08-18, NOT attached, NOT submitted
+
+Today's trial-clock commit (`9f85c74`, "Add 7-day trial clock, lock all AI difficulties after
+trial expires") landed as new code on top of the already-uploaded build 3 (v1.0.2, attached to
+version `02974e1f-...` since 2026-08-13). Since ASC already had build number `3` in use and
+`git status`/`git diff` were otherwise clean (no other uncommitted changes found), this pass
+bumped past it for a fresh build carrying the trial-clock code:
+
+- **Version bump**: `project.yml` (both `settings.base` and target `settings.base` blocks)
+  `MARKETING_VERSION` `1.0.2` → **`1.0.3`**, `CURRENT_PROJECT_VERSION` `3` → **`4`** — higher
+  than both the local prior value and ASC's highest existing versionString (`1.0.2`) / build
+  number (`3`). `xcodegen generate` re-run, `project.pbxproj` confirmed updated (4/4
+  occurrences each key).
+- **Archive/export/upload**: `xcodebuild archive` → `** ARCHIVE SUCCEEDED **`; `-exportArchive`
+  (existing `ExportOptions.plist`, `method=app-store`, unchanged) → `** EXPORT SUCCEEDED **`;
+  `xcrun altool --upload-app` → `UPLOAD SUCCEEDED`, Delivery UUID
+  `3158d1ca-1fe6-410b-b9ea-a3e429c3b50e`.
+- **Processing**: polled `GET /v1/apps/6796833584/builds` — build
+  `3158d1ca-1fe6-410b-b9ea-a3e429c3b50e` (`version: "4"`) reached **`processingState: VALID`**.
+- **Deliberately NOT done**: no `appStoreVersion` created, build not attached to anything, no
+  `reviewSubmission` touched, **not submitted for review**. This app is still scheduled for
+  batch-7 resubmission on **2026-09-06** — nothing here changes that schedule; this build is
+  just staged and available in ASC for whenever the user proceeds.
+
 ## TODOs for the App Store Connect step (explicitly out of scope here)
 
 - Register `com.quyenngo.oanquan` bundle ID and get a provisioning profile before
