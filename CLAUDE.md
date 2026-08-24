@@ -1,3 +1,12 @@
+## Status 2026-08-24 — DEBUG isPro double-gating bug fixed, code-only, NOT YET submitted
+
+Found by the fixed portfolio-wide `~/asc-tools/compliance_gate.py`: `isPro = OQ_CAPTURE !=
+"paywall"` defaulted to unlocked on a bare Debug run and on the "home" capture. Fixed to
+also exclude "home" explicitly. **Code fixed and committed only — deliberately not built/
+archived/uploaded/submitted yet**, staged for a future day per the staggered-submission
+pacing (see memory `project_20260824_debug_gating_submission_queue`). Next: bump version,
+archive, upload, `new_version.py`, submit.
+
 # Ô Ăn Quan — Vietnamese Board Game
 
 Native SwiftUI iOS app for Ô Ăn Quan, the traditional Vietnamese mancala-family board
