@@ -155,7 +155,11 @@ class PurchaseManager: ObservableObject {
 
     func updateEntitlementStatus() async {
         #if DEBUG
-        isPro = ProcessInfo.processInfo.environment["OQ_CAPTURE"] != "paywall"
+        // Double-gating bug fix (2026-08-24, portfolio-wide compliance-gate finding):
+        // `!= "paywall"` alone defaults to unlocked on a bare Debug run and on the
+        // "home" capture. Also exclude "home" explicitly.
+        let captureOQ = ProcessInfo.processInfo.environment["OQ_CAPTURE"]
+        isPro = captureOQ != nil && captureOQ != "home" && captureOQ != "paywall"
         #else
         for await result in Transaction.currentEntitlements {
             if case .verified(let transaction) = result,
