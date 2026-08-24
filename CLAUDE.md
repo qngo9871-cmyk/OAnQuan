@@ -1,3 +1,14 @@
+## Status 2026-08-24 (later same day) — fixed a real UI bug found via vision QA (portfolio-wide sweep)
+
+Same fix as Dara/Surakarta/Omweso/Fanorona/Igisoro/Bao/Janggi/Pallanguzhi/ToguzKorgool/
+ChineseChess/Makruk: the difficulty picker's `.frame(maxWidth: 280)` truncates
+"Easy/Normal/Hard" labels once all 3 segments show a lock icon at once — the state
+every user hits once their 7-day trial expires. Verified this app's own recaptured
+home screenshot (from the earlier fix above) only ever showed 1 lock (Hard, trial
+active), so the existing screenshots didn't need re-touching for this specific bug —
+confirmed the widened `maxWidth: 340` handles the worst case (all 3 locked) via a
+screenshot test on a sibling app. Code-only.
+
 ## Status 2026-08-24 — DEBUG isPro double-gating bug fixed, code-only, NOT YET submitted
 
 Found by the fixed portfolio-wide `~/asc-tools/compliance_gate.py`: `isPro = OQ_CAPTURE !=

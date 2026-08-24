@@ -56,7 +56,7 @@ struct HomeView: View {
                         }
                     }
                     .pickerStyle(.segmented)
-                    .frame(maxWidth: 280)
+                    .frame(maxWidth: 340)
 
                     Button {
                         if isLocked(selectedDifficulty) {
