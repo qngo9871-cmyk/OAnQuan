@@ -107,12 +107,18 @@ def main():
     print(f"==> device {name}")
     APP = build_app()
     subprocess.run(["xcrun", "simctl", "shutdown", DEVICE], capture_output=True)
+    subprocess.run(["xcrun", "simctl", "erase", DEVICE], capture_output=True)
     subprocess.run(["xcrun", "simctl", "boot", DEVICE], capture_output=True)
     sh("xcrun", "simctl", "bootstatus", DEVICE, "-b")
     subprocess.run(["xcrun", "simctl", "status_bar", DEVICE, "override", "--time", "9:41",
                     "--batteryLevel", "100", "--batteryState", "charged",
                     "--cellularBars", "4", "--wifiBars", "3"], capture_output=True)
     sh("xcrun", "simctl", "install", DEVICE, str(APP))
+    # A freshly-erased simulator can surface a first-boot system notification
+    # banner ("Ready for Apple Intelligence") a few seconds in, which then
+    # auto-dismisses on its own — wait it out before capturing so it doesn't
+    # land in a screenshot (found via vision QA, 2026-08-24).
+    time.sleep(8)
     raw = APP_DIR / "screenshots" / "_raw.png"
     for lang, shots in SHOTS.items():
         out = APP_DIR / "screenshots" / "final" / lang
@@ -122,7 +128,12 @@ def main():
             subprocess.run(["xcrun", "simctl", "launch", DEVICE, BUNDLE],
                            env=dict(os.environ, SIMCTL_CHILD_OQ_CAPTURE=cap, SIMCTL_CHILD_OQ_LANG=lang),
                            capture_output=True)
-            time.sleep(2)
+            # "upgrade" needs to outlast PurchaseManager.loadProduct()'s 10s
+            # StoreKit timeout so productLoadFailed (and the DEBUG paywall-copy
+            # override) has actually resolved by the time we screenshot —
+            # otherwise this shot non-deterministically catches the loading
+            # spinner instead of the real button (found via vision QA, 2026-08-24).
+            time.sleep(12 if cap == "upgrade" else 2)
             sh("xcrun", "simctl", "io", DEVICE, "screenshot", str(raw))
             compose(raw, headline, out / f"{shotname}.png")
     raw.unlink(missing_ok=True)

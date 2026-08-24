@@ -157,9 +157,13 @@ class PurchaseManager: ObservableObject {
         #if DEBUG
         // Double-gating bug fix (2026-08-24, portfolio-wide compliance-gate finding):
         // `!= "paywall"` alone defaults to unlocked on a bare Debug run and on the
-        // "home" capture. Also exclude "home" explicitly.
+        // "home" capture. Also exclude "home" and "upgrade" explicitly — "upgrade" is
+        // this app's own paywall screenshot scenario name (see capture_shots.py), and
+        // forcing isPro=true for it made the App Store paywall screenshot show a fake
+        // "already owned" state instead of the real locked/buy screen (found via
+        // vision QA, 2026-08-24).
         let captureOQ = ProcessInfo.processInfo.environment["OQ_CAPTURE"]
-        isPro = captureOQ != nil && captureOQ != "home" && captureOQ != "paywall"
+        isPro = captureOQ != nil && captureOQ != "home" && captureOQ != "paywall" && captureOQ != "upgrade"
         #else
         for await result in Transaction.currentEntitlements {
             if case .verified(let transaction) = result,

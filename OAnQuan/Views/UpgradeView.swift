@@ -45,13 +45,30 @@ struct UpgradeView: View {
                 .disabled(purchases.isPurchasing)
                 .padding(.horizontal, 30)
             } else if purchases.productLoadFailed {
-                VStack(spacing: 8) {
-                    Text(L("upgrade.loadFailed"))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    Button(L("upgrade.tryAgain")) { Task { await purchases.loadProduct() } }
-                        .buttonStyle(.bordered)
+                #if DEBUG
+                if ProcessInfo.processInfo.environment["OQ_CAPTURE"] == "upgrade" {
+                    // App Store screenshot capture only: local StoreKit testing
+                    // consistently fails to load a real Product via a bare
+                    // `simctl launch` (no Xcode test host attached) — same
+                    // known limitation as Janggi/Dara/Makruk. Renders the real,
+                    // shipping button copy/price so the screenshot reflects the
+                    // actual purchase UI instead of the simulator-only error
+                    // fallback below. Never shown to a real user — gated on
+                    // both #if DEBUG and the OQ_CAPTURE screenshot launch arg.
+                    Button {} label: {
+                        Text(String(format: L("upgrade.buy"), "$2.99"))
+                            .fontWeight(.semibold)
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    .padding(.horizontal, 30)
+                } else {
+                    productLoadFailedView
                 }
+                #else
+                productLoadFailedView
+                #endif
             } else {
                 Text(L("upgrade.unavailable")).foregroundStyle(.secondary)
             }
@@ -79,6 +96,16 @@ struct UpgradeView: View {
         .task { await purchases.loadProduct() }
         .onChange(of: purchases.isPro) { isPro in
             if isPro { dismiss() }
+        }
+    }
+
+    private var productLoadFailedView: some View {
+        VStack(spacing: 8) {
+            Text(L("upgrade.loadFailed"))
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Button(L("upgrade.tryAgain")) { Task { await purchases.loadProduct() } }
+                .buttonStyle(.bordered)
         }
     }
 

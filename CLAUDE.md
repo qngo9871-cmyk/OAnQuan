@@ -7,6 +7,36 @@ archived/uploaded/submitted yet**, staged for a future day per the staggered-sub
 pacing (see memory `project_20260824_debug_gating_submission_queue`). Next: bump version,
 archive, upload, `new_version.py`, submit.
 
+**2026-08-24 (later same day) — vision QA pass found the same double-gating bug had a
+residual instance, plus a stale-screenshot problem.** The fix above excluded `"home"` from
+the isPro override but never excluded `"upgrade"` — this app's own paywall screenshot
+scenario name (see `capture_shots.py`) — so `04-upgrade.png` was still capturing with
+`isPro=true`, showing a fake "You own Ô Ăn Quan Pro ✓" state instead of a real buy button.
+A fresh user would never see that screen; this is the same "screenshot doesn't match
+reality" issue that got BauCua rejected under Guideline 2.3.6, just on the paywall instead
+of the home screen. Fixed:
+- `Core/PurchaseManager.swift`: `isPro` override now also excludes `"upgrade"`.
+- `Views/UpgradeView.swift`: added a DEBUG-only branch (mirroring Makruk's proven pattern)
+  that renders the real "Unlock — $2.99" button when `productLoadFailed` is true and
+  `OQ_CAPTURE == "upgrade"` — local StoreKit testing reliably fails to load a real Product
+  via a bare `simctl launch`, same known limitation as Janggi/Dara/Makruk.
+- `01-home.png` (en + vi) was also stale — captured before the 7-day-trial-lock feature
+  existed (footer read v1.0.2(3), current code is v1.0.3), so it showed no trial banner and
+  no lock icon on Hard, misrepresenting current app behavior the same way the Dara home
+  screenshot incident did earlier today. Recaptured.
+- `capture_shots.py` bugs found and fixed while recapturing: (1) never called `simctl
+  erase`, so the trial-day count wasn't deterministic across runs — added; (2) the
+  `"upgrade"` shot only waited 2s after launch, nowhere near
+  `PurchaseManager.loadProduct()`'s 10s StoreKit timeout, so it non-deterministically
+  caught the loading spinner instead of the resolved button — bumped to 12s for that shot;
+  (3) a freshly-erased simulator surfaced an iOS "Ready for Apple Intelligence" system
+  notification banner over the first capture a few seconds after boot — added an 8s
+  settle wait after install so it auto-dismisses before any screenshot.
+- All 10 screenshots (5 shots × en/vi) regenerated and individually visually verified
+  after the fixes — correct locked/trial state, no stray system UI, no truncation.
+- Build verified: `xcodegen generate` + `xcodebuild -sdk iphonesimulator build` →
+  **BUILD SUCCEEDED**. Not yet archived/submitted — same staged status as above.
+
 # Ô Ăn Quan — Vietnamese Board Game
 
 Native SwiftUI iOS app for Ô Ăn Quan, the traditional Vietnamese mancala-family board
