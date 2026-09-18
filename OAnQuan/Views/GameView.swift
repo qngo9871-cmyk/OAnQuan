@@ -10,11 +10,26 @@ struct GameView: View {
     /// modes (Player A also always moves first, per the ruleset).
     private let humanPlayer: Player = .a
 
+    @StateObject private var purchases = PurchaseManager.shared
     @Environment(\.dismiss) private var dismiss
     @State private var selectedCell: Int?
     @State private var isAIThinking = false
     @State private var showHowToPlay = false
     @State private var showResignConfirm = false
+    @State private var showUpgrade = false
+
+    /// Mirrors `HomeView.isLocked(_:)` — without this, tapping "New Game" here
+    /// after a match ends bypasses the trial gate entirely (it never routes back
+    /// through Home, where the real check lives). Found as a real bug 2026-09-19
+    /// while auditing why the Vietnamese lineup gets downloads but no purchases;
+    /// the identical bug was already caught and fixed in CoCaNgua's GameView once
+    /// before (2026-08-18) but was never ported here.
+    private var newGameLocked: Bool {
+        if purchases.isPro { return false }
+        if !vsAI { return true } // Play vs Friend is always Pro-only, matching HomeView's gate
+        if aiDifficulty.requiresPro { return true } // Hard AI is always Pro-only
+        return !purchases.trialActive // Easy/Normal lock once the trial expires
+    }
     /// Guards against double-recording the same match's outcome into
     /// `MatchStats` (this view's onChange can fire more than once around a
     /// single game-end transition).
@@ -66,11 +81,12 @@ struct GameView: View {
         .onChange(of: game.current) { _ in maybeTriggerAI() }
         .onChange(of: game.outcome) { newOutcome in handleOutcomeChange(newOutcome) }
         .alert(L("game.outcome.title"), isPresented: .constant(game.outcome != .ongoing)) {
-            Button(L("game.newGame")) { selectedCell = nil; statsRecorded = false; game.reset() }
+            Button(L("game.newGame")) { startNewGame() }
             Button(L("game.done")) { dismiss() }
         } message: {
             Text(outcomeMessage)
         }
+        .sheet(isPresented: $showUpgrade) { UpgradeView() }
         #if DEBUG
         .onAppear {
             if let capture = ProcessInfo.processInfo.environment["OQ_CAPTURE"],
@@ -213,6 +229,16 @@ struct GameView: View {
         guard game.outcome != .ongoing else { return "" }
         let scoreLine = String(format: L("game.finalScore"), game.score(.a), game.score(.b))
         return turnLabel + "\n" + scoreLine
+    }
+
+    private func startNewGame() {
+        if newGameLocked {
+            showUpgrade = true
+            return
+        }
+        selectedCell = nil
+        statsRecorded = false
+        game.reset()
     }
 
     private func maybeTriggerAI() {
